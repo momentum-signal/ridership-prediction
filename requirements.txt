@@ -1,0 +1,9 @@
+pandas
+numpy
+scikit-learn
+lightgbm
+prophet
+statsmodels
+u8darts
+pytorch_forecasting
+torch

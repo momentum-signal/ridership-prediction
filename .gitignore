@@ -8,4 +8,4 @@ __pycache__/
 
 # Model files (you already have this)
 lightning_logs/
-model/saved_models/
+model/saved_models/model/saved_models/nbeats-best.ckpt

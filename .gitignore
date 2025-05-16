@@ -1,2 +1,11 @@
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# macOS
+.DS_Store
+
+# Model files (you already have this)
 lightning_logs/
 model/saved_models/

@@ -29,7 +29,7 @@ class LightGBMPredictor:
 
 # Usage example
 if __name__ == "__main__":
-    predictor = LightGBMPredictor("../models/lightgbm_model.pkl")
+    predictor = LightGBMPredictor("../models/saved_models/lightgbm_model.pkl")
 
     sample_input = pd.DataFrame([{
         'datetime': '2025-04-01 19:00',

@@ -36,7 +36,7 @@ def train():
         'model': model,
         'origin_encoder': origin_encoder,
         'destination_encoder': destination_encoder
-    }, "../models/lightgbm_model.pkl")
+    }, "../models/saved_models/lightgbm_model.pkl")
 
 
 if __name__ == "__main__":

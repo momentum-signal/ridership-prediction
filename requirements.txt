@@ -7,3 +7,4 @@ statsmodels
 u8darts
 pytorch_forecasting
 torch
+pytorch_lightning

@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 
 
 def train():
-    df = load_data("../data/cleaned_data.csv")
+    df = load_data("model/data/cleaned_data.csv")
     df = add_features(df)
 
     # Encode origin and destination
@@ -36,7 +36,7 @@ def train():
         'model': model,
         'origin_encoder': origin_encoder,
         'destination_encoder': destination_encoder
-    }, "../models/saved_models/lightgbm_model.pkl")
+    }, "model/saved_models/lightgbm_model.pkl")
 
 
 if __name__ == "__main__":

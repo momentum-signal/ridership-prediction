@@ -8,7 +8,7 @@ def run_pipeline():
     # Add other training calls...
 
     # Step 2: Example prediction
-    predictor = LightGBMPredictor("../models/saved_models/lightgbm_model.pkl")
+    predictor = LightGBMPredictor("../saved_models/lightgbm_model.pkl")
     print(predictor.predict(sample_data))
 
 

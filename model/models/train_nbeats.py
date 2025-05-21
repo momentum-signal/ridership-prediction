@@ -112,10 +112,11 @@ def train_model(data_path: str = "model/data/cleaned_data.csv",
     df = load_data(data_path)
     df = add_features(df)
     train_loader, val_loader, scaler = prepare_data(df)
+    input_size = 5
 
     # Initialize model
     model = NBeats(
-        input_size=train_loader.dataset[0][0].shape[0],  # Get input size from first sample
+        input_size=input_size,
         n_stacks=n_stacks,
         n_layers=n_layers,
         layer_width=layer_width,

@@ -106,8 +106,8 @@ def train_model(data_path: str = "model/data/cleaned_data.csv",
                 n_layers: int = 4,
                 layer_width: int = 512,
                 learning_rate: float = 1e-3,
-                max_epochs: int = 5,
-                patience: int = 5) -> Tuple[NBeats, MinMaxScaler]:
+                max_epochs: int = 25,
+                patience: int = 25) -> Tuple[NBeats, MinMaxScaler]:
     # Load and prepare data
     df = load_data(data_path)
     df = add_features(df)

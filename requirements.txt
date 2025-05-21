@@ -1,3 +1,4 @@
+# Core Data Science
 pandas
 numpy
 scikit-learn
@@ -6,5 +7,28 @@ prophet
 statsmodels
 u8darts
 pytorch_forecasting
-torch
-pytorch_lightning
+
+# PyTorch Ecosystem
+torch>=2.0.0
+pytorch_lightning>=2.0.0
+torchvision
+torchaudio
+
+# API and Web
+fastapi>=0.95.0
+uvicorn>=0.21.0
+python-multipart
+pydantic>=2.0
+
+# Additional Utilities
+python-dotenv
+joblib
+tqdm
+tensorboard
+tensorboardX
+
+# Optional (for production)
+gunicorn
+httpx
+python-jose[cryptography]
+passlib[bcrypt]

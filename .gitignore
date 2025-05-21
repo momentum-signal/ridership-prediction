@@ -10,3 +10,11 @@ __pycache__/
 # Model files (you already have this)
 lightning_logs/
 model/saved_models/
+
+#dill session
+.pkl
+.dill
+
+#virtual env for python
+.venv/
+venv/

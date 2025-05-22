@@ -18,6 +18,7 @@ model/saved_models/
 #virtual env for python
 .venv/
 venv/
+conda/
 
 #notebook
 .ipynb

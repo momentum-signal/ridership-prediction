@@ -12,7 +12,7 @@ lightning_logs/
 model/saved_models/
 
 #dill session
-.pkl
+*.pkl
 .dill
 
 #virtual env for python
@@ -21,4 +21,5 @@ venv/
 conda/
 
 #notebook
-.ipynb
+*.ipynb
+*.py

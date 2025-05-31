@@ -186,8 +186,35 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
   }
-  body {
+  
+  html, body {
     @apply bg-background text-foreground;
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden;
+    position: relative;
+  }
+  
+  body {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Custom scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/30 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
   }
 }

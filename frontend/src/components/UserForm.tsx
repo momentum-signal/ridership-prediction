@@ -67,7 +67,6 @@ export default function UserForm() {
     defaultValues: DEFAULT_VALUE,
     resolver: zodResolver(FormSchema),
   })
-
   function onSubmit(data: z.infer<typeof FormSchema>) {
     toast("You submitted the following values", {
       description: (
@@ -80,84 +79,69 @@ export default function UserForm() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
-        {/*++++++++++++++++++Origin & Destination++++++++++++++++++*/}
-        <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 w-full items-stretch">
-          <FormField
-            control={form.control}
-            name="origin"
-            render={({ field }) => (
-              <FormItem className="flex flex-col w-full">
-                <FormLabel>Origin <span className="text-destructive">*</span></FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-full justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value
-                          ? stations.find(
-                            (station) => station.value === field.value
-                          )?.label
-                          : "Select Origin"}
-                        <ChevronsUpDown className="opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" sideOffset={4} className="w-[var(--radix-popover-trigger-width)] min-w-0 max-w-full p-0">
-                    <Command>
-                      <CommandInput
-                        placeholder="Search Origin..."
-                        className="h-9"
-                      />
-                      <CommandList>
-                        <CommandEmpty>No framework found.</CommandEmpty>
-                        <CommandGroup>
-                          {stations.map((station) => (
-                            <CommandItem
-                              value={station.label}
-                              key={station.value}
-                              onSelect={() => {
-                                form.setValue("origin", station.value)
-                              }}
-                              disabled={form.watch("destination") === station.value}
-                            >
-                              {station.label}
-                              <Check
-                                className={cn(
-                                  "ml-auto",
-                                  station.value === field.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                {/* <FormDescription>
-                  This is the language that will be used in the dashboard.
-                </FormDescription> */}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          {/* Swap Button for sm:flex-row, vertical for mobile */}
-          <div className="flex justify-center items-center sm:mt-8 sm:flex-col sm:justify-start">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6 w-full">
+        {/* Origin & Destination with Swap */}        <div className="flex flex-col gap-2 w-full">
+          <div className="flex flex-col gap-1 bg-card/70 rounded-xl p-4 shadow-sm border border-border">
+            <FormLabel className="text-base font-semibold">Origin <span className="text-destructive">*</span></FormLabel>
+            <FormField
+              control={form.control}
+              name="origin"
+              render={({ field }) => (
+                <FormItem className="flex flex-col gap-1">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between text-left font-medium border-2 focus:ring-2 focus:ring-primary/50 h-12 rounded-lg bg-background/80",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? stations.find((station) => station.value === field.value)?.label
+                            : "Select Origin"}
+                          <ChevronsUpDown className="opacity-50 ml-2" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" sideOffset={4} className="w-[var(--radix-popover-trigger-width)] min-w-0 max-w-full p-0">
+                      <Command>
+                        <CommandInput placeholder="Search Origin..." className="h-9" />
+                        <CommandList>
+                          <CommandEmpty>No station found.</CommandEmpty>
+                          <CommandGroup>
+                            {stations.map((station) => (
+                              <CommandItem
+                                value={station.label}
+                                key={station.value}
+                                onSelect={() => {
+                                  form.setValue("origin", station.value, { shouldValidate: true });
+                                }}
+                                disabled={form.watch("destination") === station.value}
+                              >
+                                {station.label}
+                                <Check className={cn("ml-auto", station.value === field.value ? "opacity-100" : "opacity-0")} />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />          </div>
+          {/* Swap Button */}
+          <div className="flex justify-center items-center -my-2">
             <Button
               type="button"
               variant="ghost"
               size="icon"
               aria-label="Swap origin and destination"
-              className="border border-border rounded-full shadow-sm bg-background hover:bg-accent focus:ring-2 focus:ring-primary mx-0 sm:mx-2 my-2 sm:my-0"
+              className="border border-border rounded-full shadow-md bg-background hover:bg-accent focus:ring-2 focus:ring-primary mx-0 my-0 p-3"
               onClick={() => {
                 const origin = form.getValues("origin");
                 const destination = form.getValues("destination");
@@ -165,93 +149,79 @@ export default function UserForm() {
                 form.setValue("destination", origin, { shouldValidate: true });
               }}
             >
-              <ArrowLeftRight className="h-5 w-5 transition-transform duration-200 sm:rotate-0 rotate-90" />
-            </Button>
-          </div>
+              <ArrowLeftRight className="h-6 w-6 transition-transform duration-200 sm:rotate-0 rotate-90 text-primary" />            </Button>
+          </div>          <div className="flex flex-col gap-1 bg-card/70 rounded-xl p-4 shadow-sm border border-border">
+            <FormLabel className="text-base font-semibold">Destination <span className="text-destructive">*</span></FormLabel>
+            <FormField
+              control={form.control}
+              name="destination"
+              render={({ field }) => (
+                <FormItem className="flex flex-col gap-1">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            "w-full justify-between text-left font-medium border-2 focus:ring-2 focus:ring-primary/50 h-12 rounded-lg bg-background/80",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value
+                            ? stations.find((station) => station.value === field.value)?.label
+                            : "Select destination"}
+                          <ChevronsUpDown className="opacity-50 ml-2" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" sideOffset={4} className="w-[var(--radix-popover-trigger-width)] min-w-0 max-w-full p-0">
+                      <Command>
+                        <CommandInput placeholder="Search Destination..." className="h-9" />
+                        <CommandList>
+                          <CommandEmpty>No station found.</CommandEmpty>
+                          <CommandGroup>
+                            {stations.map((station) => (
+                              <CommandItem
+                                value={station.label}
+                                key={station.value}
+                                onSelect={() => {
+                                  form.setValue("destination", station.value, { shouldValidate: true });
+                                }}
+                                disabled={form.watch("origin") === station.value}
+                              >
+                                {station.label}
+                                <Check className={cn("ml-auto", station.value === field.value ? "opacity-100" : "opacity-0")} />
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />          </div>
+        </div>        {/* DateTime Picker */}
+        <div className="w-full flex flex-col gap-1 bg-card/70 rounded-xl p-4 shadow-sm border border-border">
+          <FormLabel className="text-base font-semibold" htmlFor="datetime">Date time <span className="text-destructive">*</span></FormLabel>
           <FormField
             control={form.control}
-            name="destination"
-            render={({ field }) => (
-              <FormItem className="flex flex-col w-full">
-                <FormLabel>Destination <span className="text-destructive">*</span></FormLabel>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <FormControl>
-                      <Button
-                        variant="outline"
-                        role="combobox"
-                        className={cn(
-                          "w-full justify-between",
-                          !field.value && "text-muted-foreground"
-                        )}
-                      >
-                        {field.value
-                          ? stations.find(
-                            (station) => station.value === field.value
-                          )?.label
-                          : "Select destination"}
-                        <ChevronsUpDown className="opacity-50" />
-                      </Button>
-                    </FormControl>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" sideOffset={4} className="w-[var(--radix-popover-trigger-width)] min-w-0 max-w-full p-0">
-                    <Command>
-                      <CommandInput
-                        placeholder="Search Destination..."
-                        className="h-9"
-                      />
-                      <CommandList>
-                        <CommandEmpty>No destination found.</CommandEmpty>
-                        <CommandGroup>
-                          {stations.map((station) => (
-                            <CommandItem
-                              value={station.label}
-                              key={station.value}
-                              onSelect={() => {
-                                form.setValue("destination", station.value)
-                              }}
-                              disabled={form.watch("origin") === station.value}
-                            >
-                              {station.label}
-                              <Check
-                                className={cn(
-                                  "ml-auto",
-                                  station.value === field.value
-                                    ? "opacity-100"
-                                    : "opacity-0"
-                                )}
-                              />
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                {/* <FormDescription>
-                  This is the language that will be used in the dashboard.
-                </FormDescription> */}
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-        <div className="">
-          <FormField
-            control={form.control}
-            name="datetime"
-            render={({ field }) => (
-              <FormItem className="flex w-72 flex-col gap-2">
-                <FormLabel htmlFor="datetime">Date time <span className="text-destructive">*</span></FormLabel>
+            name="datetime" render={({ field }) => (
+              <FormItem className="flex flex-col gap-1 w-full">
                 <FormControl>
-                  <DateTimePicker value={field.value} onChange={field.onChange} />
+                  <DateTimePicker
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
         </div>
-        <Button type="submit">Search</Button>
+        <Button type="submit" className="w-full py-3 text-base font-semibold rounded-lg mt-2">Search</Button>
       </form>
     </Form>
   )

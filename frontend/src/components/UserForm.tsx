@@ -1,7 +1,7 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, ArrowLeftRight } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
@@ -82,7 +82,7 @@ export default function UserForm() {
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col space-y-6">
         {/*++++++++++++++++++Origin & Destination++++++++++++++++++*/}
-        <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 w-full">
+        <div className="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 w-full items-stretch">
           <FormField
             control={form.control}
             name="origin"
@@ -150,6 +150,24 @@ export default function UserForm() {
               </FormItem>
             )}
           />
+          {/* Swap Button for sm:flex-row, vertical for mobile */}
+          <div className="flex justify-center items-center sm:mt-8 sm:flex-col sm:justify-start">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Swap origin and destination"
+              className="border border-border rounded-full shadow-sm bg-background hover:bg-accent focus:ring-2 focus:ring-primary mx-0 sm:mx-2 my-2 sm:my-0"
+              onClick={() => {
+                const origin = form.getValues("origin");
+                const destination = form.getValues("destination");
+                form.setValue("origin", destination, { shouldValidate: true });
+                form.setValue("destination", origin, { shouldValidate: true });
+              }}
+            >
+              <ArrowLeftRight className="h-5 w-5 transition-transform duration-200 sm:rotate-0 rotate-90" />
+            </Button>
+          </div>
           <FormField
             control={form.control}
             name="destination"

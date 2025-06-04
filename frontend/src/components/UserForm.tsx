@@ -5,6 +5,8 @@ import { Check, ChevronsUpDown, ArrowLeftRight } from "lucide-react"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
+import { useEffect, useState } from "react";
+import axios from "axios";
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -31,19 +33,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { DateTimePicker } from '@/components/ui/datetime-picker';
-const stations = [
-  { label: "Kezang", value: "kezang" },
-  { label: "Phelio Damansara", value: "Phelio Damansara" },
-  { label: "Puchong", value: "puchong" },
-  { label: "Kuala Lumpur", value: "kuala-lumpur" },
-  { label: "Petaling Jaya", value: "petaling-jaya" },
-  { label: "Subang Jaya", value: "subang-jaya" },
-  { label: "Bandar Utama", value: "bandar-utama" },
-  { label: "Bangsar", value: "bangsar" },
-  { label: "Titiwangsa", value: "titiwangsa" },
-  { label: "Sentul", value: "sentul" },
-] as const
-
 const FormSchema = z.object({
   origin: z.string({
     required_error: "Please select an origin.",
@@ -67,20 +56,67 @@ export default function UserForm() {
     defaultValues: DEFAULT_VALUE,
     resolver: zodResolver(FormSchema),
   })
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    toast("You submitted the following values", {
-      description: (
-        <pre className="mt-2 w-[320px] rounded-md bg-neutral-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    })
+  const [stations, setStations] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  useEffect(() => {
+    const fetchStations = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:5000/stations"); // Full URL to Flask API
+        setStations(response.data.stations); // Set stations as an array of strings
+      } catch (error) {
+        console.error("Error fetching stations:", error);
+      }
+    };
+
+    fetchStations();
+  }, []); function onSubmit(data: z.infer<typeof FormSchema>) {
+    setIsLoading(true);
+
+    const makeApiCall = async () => {
+      try {
+        // Transform form data to API format
+        const apiData = {
+          day_of_week: data.datetime.getDay(), // 0 = Sunday, 1 = Monday, etc.
+          is_weekend: data.datetime.getDay() === 0 || data.datetime.getDay() === 6 ? 1 : 0,
+          is_holiday: 0, // You might want to implement holiday detection
+          month: data.datetime.getMonth() + 1, // JavaScript months are 0-indexed
+        };
+
+        // Make prediction API call
+        const response = await axios.post("http://127.0.0.1:5000/predict", apiData);
+        // Show success toast with prediction
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayName = dayNames[data.datetime.getDay()];
+        const isWeekend = data.datetime.getDay() === 0 || data.datetime.getDay() === 6;
+
+        toast.success("🚄 Prediction Complete!", {
+          description: (
+            <div className="mt-2 space-y-1">
+              <p><strong>Route:</strong> {data.origin} → {data.destination}</p>
+              <p><strong>Date:</strong> {data.datetime.toLocaleDateString()}</p>
+              <p><strong>Day:</strong> {dayName} {isWeekend ? '(Weekend)' : '(Weekday)'}</p>
+              <p className="text-lg"><strong>Predicted Ridership:</strong> <span className="text-blue-600 font-bold">{Math.round(response.data.prediction)}</span> passengers</p>
+            </div>
+          ),
+          duration: 8000, // Show for 8 seconds
+        });
+      } catch (error: any) {
+        console.error("Prediction error:", error);
+        toast.error("Prediction failed", {
+          description: error.response?.data?.error || "Unable to get prediction from server",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    makeApiCall();
   }
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-6 w-full">
-        {/* Origin & Destination with Swap */}        <div className="flex flex-col gap-2 w-full">
+        <div className="flex flex-col gap-2 w-full">
           <div className="flex flex-col gap-1 bg-card/70 rounded-xl p-4 shadow-sm border border-border">
             <FormLabel className="text-base font-semibold">Origin <span className="text-destructive">*</span></FormLabel>
             <FormField
@@ -99,9 +135,7 @@ export default function UserForm() {
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value
-                            ? stations.find((station) => station.value === field.value)?.label
-                            : "Select Origin"}
+                          {field.value || "Select Origin"}
                           <ChevronsUpDown className="opacity-50 ml-2" />
                         </Button>
                       </FormControl>
@@ -114,15 +148,15 @@ export default function UserForm() {
                           <CommandGroup>
                             {stations.map((station) => (
                               <CommandItem
-                                value={station.label}
-                                key={station.value}
+                                value={station}
+                                key={station}
                                 onSelect={() => {
-                                  form.setValue("origin", station.value, { shouldValidate: true });
+                                  form.setValue("origin", station, { shouldValidate: true });
                                 }}
-                                disabled={form.watch("destination") === station.value}
+                                disabled={form.watch("destination") === station}
                               >
-                                {station.label}
-                                <Check className={cn("ml-auto", station.value === field.value ? "opacity-100" : "opacity-0")} />
+                                {station}
+                                <Check className={cn("ml-auto", station === field.value ? "opacity-100" : "opacity-0")} />
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -168,9 +202,7 @@ export default function UserForm() {
                             !field.value && "text-muted-foreground"
                           )}
                         >
-                          {field.value
-                            ? stations.find((station) => station.value === field.value)?.label
-                            : "Select destination"}
+                          {field.value || "Select Destination"}
                           <ChevronsUpDown className="opacity-50 ml-2" />
                         </Button>
                       </FormControl>
@@ -183,15 +215,15 @@ export default function UserForm() {
                           <CommandGroup>
                             {stations.map((station) => (
                               <CommandItem
-                                value={station.label}
-                                key={station.value}
+                                value={station}
+                                key={station}
                                 onSelect={() => {
-                                  form.setValue("destination", station.value, { shouldValidate: true });
+                                  form.setValue("destination", station, { shouldValidate: true });
                                 }}
-                                disabled={form.watch("origin") === station.value}
+                                disabled={form.watch("origin") === station}
                               >
-                                {station.label}
-                                <Check className={cn("ml-auto", station.value === field.value ? "opacity-100" : "opacity-0")} />
+                                {station}
+                                <Check className={cn("ml-auto", station === field.value ? "opacity-100" : "opacity-0")} />
                               </CommandItem>
                             ))}
                           </CommandGroup>
@@ -221,7 +253,13 @@ export default function UserForm() {
             )}
           />
         </div>
-        <Button type="submit" className="w-full py-3 text-base font-semibold rounded-lg mt-2">Search</Button>
+        <Button
+          type="submit"
+          className="w-full py-3 text-base font-semibold rounded-lg mt-2"
+          disabled={isLoading}
+        >
+          {isLoading ? "Getting Prediction..." : "Get Prediction"}
+        </Button>
       </form>
     </Form>
   )

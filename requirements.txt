@@ -7,6 +7,7 @@ prophet
 statsmodels
 u8darts
 pytorch_forecasting
+matplotlib
 
 # PyTorch Ecosystem
 torch>=2.0.0
@@ -26,9 +27,14 @@ joblib
 tqdm
 tensorboard
 tensorboardX
+seaborn
+plotly
 
 # Optional (for production)
 gunicorn
 httpx
 python-jose[cryptography]
 passlib[bcrypt]
+
+# Additional for SARIMAX and time series
+scipy

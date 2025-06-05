@@ -7,6 +7,9 @@ from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 from sklearn.preprocessing import MinMaxScaler
 
+# Torchmetrics
+from torchmetrics import MeanAbsoluteError, MeanSquaredError, R2Score
+
 # Import from your data loader module
 from model.utils.nbeats.nbeats_data_loader import prepare_data
 from model.utils.data_loader import load_data
@@ -74,6 +77,16 @@ class NBeats(pl.LightningModule):
         self.final_layer = nn.Linear(n_stacks * output_size, output_size)
         self.loss_fn = nn.MSELoss()
 
+        # Train metrics
+        self.train_mae = MeanAbsoluteError()
+        self.train_rmse = MeanSquaredError(squared=False)
+        self.train_r2 = R2Score()
+
+        # Validation metrics
+        self.val_mae = MeanAbsoluteError()
+        self.val_rmse = MeanSquaredError(squared=False)
+        self.val_r2 = R2Score()
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         forecasts = []
         for stack in self.stacks:
@@ -87,21 +100,31 @@ class NBeats(pl.LightningModule):
         x, y = batch
         y_hat = self(x)
         loss = self.loss_fn(y_hat, y)
+
+        # Log metrics
         self.log("train_loss", loss, prog_bar=True)
+        self.log("train_mae", self.train_mae(y_hat, y))
+        self.log("train_rmse", self.train_rmse(y_hat, y))
+        self.log("train_r2", self.train_r2(y_hat, y))
         return loss
 
     def validation_step(self, batch, batch_idx):
         x, y = batch
         y_hat = self(x)
         loss = self.loss_fn(y_hat, y)
+
+        # Log metrics
         self.log("val_loss", loss, prog_bar=True)
+        self.log("val_mae", self.val_mae(y_hat, y))
+        self.log("val_rmse", self.val_rmse(y_hat, y))
+        self.log("val_r2", self.val_r2(y_hat, y))
         return loss
 
     def configure_optimizers(self):
         return optim.Adam(self.parameters(), lr=self.learning_rate)
 
 
-def train_model(data_path: str = "model/data/cleaned_data.csv",
+def train_model(data_path: str = "../data/cleaned_data.csv",
                 n_stacks: int = 30,
                 n_layers: int = 4,
                 layer_width: int = 512,
@@ -112,7 +135,7 @@ def train_model(data_path: str = "model/data/cleaned_data.csv",
     df = load_data(data_path)
     df = add_features(df)
     train_loader, val_loader, scaler = prepare_data(df)
-    input_size = 5
+    input_size = 5  # Adjust if different
 
     # Initialize model
     model = NBeats(
@@ -130,8 +153,8 @@ def train_model(data_path: str = "model/data/cleaned_data.csv",
             EarlyStopping(monitor="val_loss", patience=patience, mode="min"),
             ModelCheckpoint(
                 monitor="val_loss",
-                dirpath="model/saved_models/",
-                filename="nbeats-best",
+                dirpath="../saved_models/",
+                filename="nbeats_model",
                 save_top_k=1
             )
         ],

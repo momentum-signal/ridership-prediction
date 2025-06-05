@@ -12,7 +12,7 @@ app = FastAPI(
 
 # Load model on startup
 predictor = NBeatsPredictor(
-    model_path="saved_models/nbeats-best.ckpt",
+    model_path="saved_models/nbeats_model.ckpt",
     training_data_path="data/cleaned_data.csv"
 )
 

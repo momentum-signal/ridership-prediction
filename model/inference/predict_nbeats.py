@@ -129,7 +129,7 @@ class NBeatsPredictor:
 if __name__ == "__main__":
     # Initialize predictor
     predictor = NBeatsPredictor(
-        model_path="../saved_models/nbeats-best.ckpt",
+        model_path="../saved_models/nbeats_model.ckpt",
         training_data_path="../data/cleaned_data.csv"
     )
 
